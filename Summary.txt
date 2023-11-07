@@ -1,0 +1,59 @@
+MeMS - Memory Management System
+
+Introduction
+MeMS (Memory Management System) is a custom memory management system implemented in C. It is designed to efficiently allocate and manage memory in a way that optimizes memory utilization.
+
+Components
+1. MainChainNode
+MainChainNode represents the main chain of memory segments.
+It contains information about the total memory allocation, the amount of memory used, and the wasted memory.
+Each MainChainNode points to its corresponding sub-chain.
+
+2. SubChainNode
+SubChainNode represents individual memory segments within the sub-chain.
+It holds information about the size of the segment, the type (0 for free, 1 for used), the virtual address, and references to the next and previous segments in the sub-chain.
+
+Memory Allocation
+addToMainChain(size_t size)
+The addToMainChain function allocates a new main chain node with a specified size.
+It uses the mmap system call to allocate memory on the heap.
+The allocated memory is aligned to the page size.
+The new node is linked to the previous main chain node.
+
+addToSubChain(MainChainNode* main_node, size_t size, int type)
+The addToSubChain function adds a new sub-chain node to the sub-chain of the given main chain node.
+It initializes the sub-chain node with the specified size and type.
+It updates the links between sub-chain nodes and keeps track of virtual addresses.
+
+mems_malloc(size_t size)
+The mems_malloc function allocates memory for the user program.
+It searches through the main chain nodes to find a suitable segment in the sub-chain for allocation.
+If a segment is found, it is marked as used, and its virtual address is returned.
+If no suitable segment is found, a new main chain node is created to allocate more memory.
+The virtual address is updated, and the sub-chain is maintained accordingly.
+
+Memory Deallocation
+mems_free(void *v_ptr)
+The mems_free function frees memory pointed to by a given virtual address.
+It marks the corresponding segment as free in the sub-chain.
+The combineFreeSubNodes function is called to combine adjacent free segments in the sub-chain.
+Wasted memory is updated.
+
+combineFreeSubNodes(MainChainNode* main_node)
+The combineFreeSubNodes function combines adjacent free sub-chain nodes into a single node.
+It updates the size and virtual address of the combined node and adjusts the links in the sub-chain.
+
+Miscellaneous Functions
+mems_get(void *v_ptr)
+The mems_get function returns the physical memory address corresponding to a given virtual address.
+It calculates the physical address based on MeMS's memory layout and offset.
+mems_finish()
+The mems_finish function is used to release all allocated memory.
+It uses the munmap system call to unmap memory regions.
+The main chain nodes and the sub-chain are cleared.
+mems_print_stats()
+The mems_print_stats function prints statistics about the MeMS system, including the number of pages used, unused memory, and details about each main chain node and sub-chain segments.
+
+
+Conclusion
+The MeMS system provides efficient memory allocation and deallocation capabilities while optimizing memory usage. It is a custom memory management solution that can be integrated into C-based applications to improve memory management and utilization.I have handled everything I could however few edge cases and mapping error cases may occur.
